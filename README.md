@@ -16,8 +16,8 @@ This repository provides a simple Python script (`main.py`) that uses the unoffi
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo
+   git clone https://github.com/mwulffn/proton-monitor.git
+   cd proton-monitor
    ```
 
 2. **Sync Dependencies**  
@@ -50,7 +50,7 @@ This repository provides a simple Python script (`main.py`) that uses the unoffi
    Follow any on-screen prompts for credentials if needed.
 
 3. **Observe the Logs**  
-   - The script uses Python’s built-in logging (`logging.basicConfig(level=logging.INFO)`), so you’ll see informational messages about the script’s progress (e.g., loading labels, moving messages, etc.).
+   - The script uses Python’s built-in logging, so you’ll see informational messages about the script’s progress (e.g., loading labels, moving messages, etc.).
 
 ## Customizing the Filters
 
