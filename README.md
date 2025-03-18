@@ -1,4 +1,4 @@
-# Proton Mintor
+# Proton Monitor
 
 This repository provides a simple Python script (`main.py`) that uses the unofficial [`protonmail`](https://pypi.org/project/protonmail/) library to log in to ProtonMail, read messages from the inbox, and apply custom filters (e.g., trashing certain emails, moving them to specific labels). The script makes it easy to automatically organize your ProtonMail inbox.
 
