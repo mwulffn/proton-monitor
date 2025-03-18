@@ -2,6 +2,13 @@
 
 This repository provides a simple Python script (`main.py`) that uses the unofficial [`protonmail`](https://pypi.org/project/protonmail/) library to log in to ProtonMail, read messages from the inbox, and apply custom filters (e.g., trashing certain emails, moving them to specific labels). The script makes it easy to automatically organize your ProtonMail inbox.
 
+## Requirements
+- [Ollama](https://ollama.com/) must be installed on the machine running this script. Ollama is required for certain features of the script. Currently the script uses the gemma3:12b model. See the Ollama website for installation instructions.
+
+- [uv](https://github.com/astral-sh/uv) must be installed to run and manage dependencies for this script.
+
+
+
 ## Features
 
 - **Session Persistence**: The script saves your session data to a `.proton-session` file so you don't have to log in every time.
