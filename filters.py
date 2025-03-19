@@ -190,3 +190,37 @@ Your output must follow this exact JSON format (with no extra text outside the J
     info = json.loads(response.response)
 
     return info["is_takeaway_purchase"]
+
+def is_receipt(message: Message) -> bool:
+    prompt = """You are a text classifier that determines if an email contains a receipt for a purchase.
+Specifically, you must decide whether the email confirms a transaction, provides an invoice, or includes proof of payment.
+
+Please follow these steps:
+
+1. Read the email text carefully.
+2. Decide if the email explicitly indicates that it contains a receipt or proof of purchase.
+   - Examples of relevant indicators include phrases like:
+     - **English:** “your receipt,” “invoice attached,” “payment confirmation,” “order summary,” “transaction details.”
+     - **German:** “Ihre Rechnung,” “Zahlungsbestätigung,” “Quittung,” “Bestellübersicht,” “Transaktionsdetails.”
+     - **Danish:** “din kvittering,” “faktura vedhæftet,” “betalingsbekræftelse,” “ordrebekræftelse,” “transaktionsdetaljer.”
+   - Emails that merely mention purchases in a general sense (e.g., advertisements, promotions, or newsletters) without providing proof of payment should not be classified as receipts.
+3. Return only a single JSON object with the key "is_receipt" and a boolean value:
+   - `true` if the email contains a receipt, invoice, or payment confirmation.
+   - `false` if the email does not provide explicit proof of purchase.
+
+Your output must follow this exact JSON format (with no extra text outside the JSON):
+
+```json
+{
+  "is_receipt": true/false
+}
+```"""
+    if len([x for x in message.attachments if 'application/pdf' in x.type]) == 0:
+        return False
+
+
+    response = apply_prompt(message, prompt)
+
+    info = json.loads(response.response)
+
+    return info["is_receipt"]

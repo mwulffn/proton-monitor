@@ -10,6 +10,7 @@ from filters import (
     is_linkedin_shit_emails,
     is_general_social_media,
     is_take_away,
+    is_receipt
 )
 
 proton = ProtonMail()
@@ -26,9 +27,9 @@ def restore_session():
         logger.info("Restoring session from .proton-session")
         proton.load_session(".proton-session")
     else:
+        load_dotenv()
         if "PROTON_USERNAME" in os.environ and "PROTON_PASSWORD" in os.environ:
             logger.info("Using environment variables for login")
-            load_dotenv()
             proton.login(os.environ["PROTON_USERNAME"], os.environ["PROTON_PASSWORD"])
         else:
             username = input("Enter your ProtonMail username: ")
@@ -84,6 +85,10 @@ def apply_filters(message: Message) -> None:
         trash_message(message)
         return
 
+    if is_receipt(message):
+        move_message(message, "Inbox", "Kvitteringer")
+        return
+
     if is_shipping_update(message):
         move_message(message, "Inbox", "Forsendelser", False)
         return
@@ -126,9 +131,13 @@ def main():
 
     for message in messages:
         logger.info(f"{message.sender.address}: {message.subject}")
-        message = proton.read_message(message)
-
-        apply_filters(message)
+        try:
+            message = proton.read_message(message)
+            apply_filters(message)
+        except ConnectionError:
+            logger.error("Connection error - skipping message")
+            
+            continue
 
 
 if __name__ == "__main__":
