@@ -11,7 +11,7 @@ from filters import (
     is_general_social_media,
     is_take_away,
     is_receipt,
-    is_spam
+    is_spam,
 )
 
 proton = ProtonMail()
@@ -82,7 +82,6 @@ def move_message(
 
 
 def apply_filters(message: Message) -> None:
-
     if is_spam(message):
         move_message(message, "Inbox", "Spam")
         return
@@ -117,6 +116,23 @@ def apply_filters(message: Message) -> None:
     # Add more filters here
 
 
+def handle_callback(response: dict):
+    messages = response.get("Messages", [])
+
+    if len(messages) == 0:
+        return
+
+    try:
+        for message_dict in messages:
+            message = proton.read_message(message_dict["ID"], mark_as_read=False)
+            logger.info(f"{message.sender.address}: {message.subject}")
+            apply_filters(message)
+
+    except ConnectionError:
+        logger.error("Connection error - skipping message")
+        return None
+
+
 def main():
     global proton_labels
 
@@ -130,17 +146,21 @@ def main():
         logger.error("Inbox label not found - exiting")
         return
 
+    logger.info("Performing inital inbox scan")
     messages = proton.get_messages(label_or_id=inbox_label)
 
     for message in messages:
         logger.info(f"{message.sender.address}: {message.subject}")
         try:
-            message = proton.read_message(message)
+            message = proton.read_message(message, mark_as_read=False)
             apply_filters(message)
         except ConnectionError:
             logger.error("Connection error - skipping message")
-            
+
             continue
+
+    logger.info("Starting event polling - monitoring for new messages")
+    proton.event_polling(handle_callback, interval=60)
 
 
 if __name__ == "__main__":
