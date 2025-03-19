@@ -10,7 +10,8 @@ from filters import (
     is_linkedin_shit_emails,
     is_general_social_media,
     is_take_away,
-    is_receipt
+    is_receipt,
+    is_spam
 )
 
 proton = ProtonMail()
@@ -81,6 +82,11 @@ def move_message(
 
 
 def apply_filters(message: Message) -> None:
+
+    if is_spam(message):
+        move_message(message, "Inbox", "Spam")
+        return
+
     if is_review_solicitation(message):
         trash_message(message)
         return
@@ -125,9 +131,6 @@ def main():
         return
 
     messages = proton.get_messages(label_or_id=inbox_label)
-
-    # archive_label = [label for label in proton_labels if label.name == 'Archive'][0]
-    # message_archive = proton.get_messages(label_or_id=archive_label)
 
     for message in messages:
         logger.info(f"{message.sender.address}: {message.subject}")

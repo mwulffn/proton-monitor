@@ -224,3 +224,36 @@ Your output must follow this exact JSON format (with no extra text outside the J
     info = json.loads(response.response)
 
     return info["is_receipt"]
+
+
+def is_spam(message: Message) -> bool:
+    prompt = """You are a text classifier that determines if an email is spam.
+Specifically, you must decide whether the email is unsolicited, promotional, deceptive, or irrelevant to the recipient.
+
+Please follow these steps:
+
+1. Read the email text carefully.
+2. Decide if the email exhibits common characteristics of spam, such as:
+   - Unsolicited marketing, promotional offers, or phishing attempts.
+   - Requests for donations, particularly for **American political campaigns**, such as appeals to support a senator or politician.
+   - Generic greetings like "Dear friend" or "Congratulations, you have won!"
+   - Urgency tactics such as “Act now,” “Limited time offer,” or “Final notice.”
+   - Suspicious links, attachments, or financial requests.
+   - Poor grammar, excessive capitalization, or misleading subject lines.
+3. Return only a single JSON object with the key "is_spam" and a boolean value:
+   - `true` if the email is unsolicited spam, political solicitation, or deceptive.
+   - `false` if the email appears legitimate and not spam.
+
+Your output must follow this exact JSON format (with no extra text outside the JSON):
+
+```json
+{
+  "is_spam": true/false
+}
+```"""
+
+    response = apply_prompt(message, prompt)
+
+    info = json.loads(response.response)
+
+    return info["is_spam"]
