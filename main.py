@@ -3,6 +3,8 @@ import logging
 from protonmail import ProtonMail
 from protonmail.models import Message
 from dotenv import load_dotenv
+import requests.exceptions as requests_exceptions
+from time import sleep
 
 from filters import (
     is_review_solicitation,
@@ -122,9 +124,20 @@ def handle_callback(response: dict):
     if len(messages) == 0:
         return
 
+    inbox_label = [label for label in proton_labels if label.name == "Inbox"][0]
+
+
     try:
         for message_dict in messages:
             message = proton.read_message(message_dict["ID"], mark_as_read=False)
+
+            if not message.unread:
+                continue
+
+            if inbox_label.id not in message.labels:
+                continue
+
+
             logger.info(f"{message.sender.address}: {message.subject}")
             apply_filters(message)
 
@@ -159,8 +172,15 @@ def main():
 
             continue
 
-    logger.info("Starting event polling - monitoring for new messages")
-    proton.event_polling(handle_callback, interval=60)
+    while True:
+        try:
+            logger.info("Starting event polling - monitoring for new messages")
+            proton.event_polling(handle_callback, interval=60)
+        except requests_exceptions.ConnectionError:
+            logger.error("Connection error - retrying in 60 seconds")
+            sleep(60)
+            continue
+        
 
 
 if __name__ == "__main__":
